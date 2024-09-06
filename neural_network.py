@@ -61,7 +61,7 @@ class NeuralNetwork:
             for j, input_layer_neuron in enumerate(input_layer):
                 input_layer_loss[j] += output_layer_loss[i] * output_layer_neuron.in_weigths[j]
         for i, loss in enumerate(input_layer_loss):
-            input_layer_loss[i] = loss * self.hidden_layer_activation_derivative(input_layer[i].value)
+            input_layer_loss[i] = loss * self.hidden_layer_activation_derivative(input_layer[i].weighted_sum)
         return input_layer_loss
 
     def layers_loss_calc(self, output_layer_loss):

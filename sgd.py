@@ -8,7 +8,7 @@ class StochasticGradientDescent:
         self.neural_network = NeuralNetwork(learning_rate=0.01, hidden_layer_activation=ReLU,
                                             hidden_layer_activation_derivative=derivative_ReLU,
                                             output_layer_activation=no_activation,
-                                            layers_size=[len(inputs), 28, 10], batch_size=64)
+                                            layers_size=[len(inputs), 28, 10], batch_size=1)
         self.inputs = inputs
         self.expected_values = expected_values
 
