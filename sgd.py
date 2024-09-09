@@ -4,11 +4,11 @@ from utils import ReLU, derivative_ReLU, softmax, no_activation, list_divide_by
 
 class StochasticGradientDescent:
 
-    def __init__(self, inputs, expected_values):
+    def __init__(self, number_of_inputs, inputs, expected_values):
         self.neural_network = NeuralNetwork(learning_rate=0.01, hidden_layer_activation=ReLU,
                                             hidden_layer_activation_derivative=derivative_ReLU,
                                             output_layer_activation=no_activation,
-                                            layers_size=[len(inputs), 28, 10], batch_size=1)
+                                            layers_size=[number_of_inputs, 28, 10], batch_size=32)
         self.inputs = inputs
         self.expected_values = expected_values
 

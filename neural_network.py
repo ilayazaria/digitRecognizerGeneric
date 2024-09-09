@@ -14,7 +14,6 @@ class NeuralNetwork:
         self.epsilon_greedy_probabilities = [0.9, 0.1]
         self.hidden_layer_activation_derivative = hidden_layer_activation_derivative
         self.batch_size = batch_size
-        self.counter = 1
 
     def build_nn(self, layers_size, hidden_layer_activation, output_layer_activation):
         if len(layers_size) < 2:
@@ -26,34 +25,36 @@ class NeuralNetwork:
         layers.append([Neuron(self.input_layer_size, output_layer_activation) for _ in range(layers_size[-1])])
         return layers
 
-    def forward_prop(self, inputs: List):
-        for neuron in self.layers[0]:
-            neuron.calculate_weighted_sum(inputs)
-            neuron.activate()
-        previous_layer_values = get_value_from_neuron_list(self.layers[0])
-        for layer in self.layers[1:]:
-            for neuron in layer:
-                neuron.calculate_weighted_sum(previous_layer_values)
-                neuron.activate()
-            previous_layer_values = get_value_from_neuron_list(layer)
-        return previous_layer_values
+    def forward_prop(self, mini_batch: List):
+        mini_batch_net = []
+        for inputs in mini_batch:
+            sample_net = []
+            previous_layer_values = inputs
+            for layer in self.layers:
+                layer_net = []
+                for neuron in layer:
+                    weighted_sum = neuron.calculate_weighted_sum(previous_layer_values)
+                    activation = neuron.activate()
+                    layer_net.append((weighted_sum, activation))
+                sample_net.append(layer_net)
+                previous_layer_values = [values[1] for values in layer_net]
+            mini_batch_net.append(sample_net)
+        return mini_batch_net
 
-    def weight_gradient_calc(self, input_layer, output_layer: List[Neuron], loss, batch_size_reached: bool):
+    def weight_gradient_calc(self, input_layer, output_layer: List[Neuron], loss):
         for i, output_layer_neuron in enumerate(output_layer):
             for j, input_layer_neuron_value in enumerate(input_layer):
                 output_layer_neuron.current_weight_gradient[j] += self.learning_rate * input_layer_neuron_value * loss[
                     i]
-                if batch_size_reached:
-                    output_layer_neuron.in_weigths[j] -= output_layer_neuron.current_weight_gradient[
-                                                             j] / self.batch_size
-                    output_layer_neuron.current_weight_gradient[j] = 0
+                output_layer_neuron.in_weigths[j] -= output_layer_neuron.current_weight_gradient[
+                                                         j] / self.batch_size
+                output_layer_neuron.current_weight_gradient[j] = 0
 
-    def bias_gradient_calc(self, output_layer: List[Neuron], loss, batch_size_reached: bool):
+    def bias_gradient_calc(self, output_layer: List[Neuron], loss):
         for i, output_layer_neuron in enumerate(output_layer):
             output_layer_neuron.current_bias_gradient += self.learning_rate * loss[i]
-            if batch_size_reached:
-                output_layer_neuron.bias -= (output_layer_neuron.current_bias_gradient / self.batch_size)
-                output_layer_neuron.current_bias_gradient = 0
+            output_layer_neuron.bias -= (output_layer_neuron.current_bias_gradient / self.batch_size)
+            output_layer_neuron.current_bias_gradient = 0
 
     def neuron_loss_calc(self, input_layer, output_layer, output_layer_loss):
         input_layer_loss = [0] * len(input_layer)
@@ -74,14 +75,9 @@ class NeuralNetwork:
 
     def back_prop(self, inputs, output_layer_loss):
         layers_loss = self.layers_loss_calc(output_layer_loss)
-        batch_size_reached = self.batch_size == self.counter
         for input_layer, output_layer, layer_loss in zip(reversed(self.layers[:-1]), reversed(self.layers),
                                                          layers_loss):
-            self.weight_gradient_calc(get_value_from_neuron_list(input_layer), output_layer, layer_loss,
-                                      batch_size_reached)
-            self.bias_gradient_calc(output_layer, layer_loss, batch_size_reached)
-        self.weight_gradient_calc(inputs, self.layers[0], layers_loss[-1], batch_size_reached)
-        self.bias_gradient_calc(self.layers[0], layers_loss[-1], batch_size_reached)
-        self.counter += 1
-        if batch_size_reached:
-            self.counter = 1
+            self.weight_gradient_calc(get_value_from_neuron_list(input_layer), output_layer, layer_loss)
+            self.bias_gradient_calc(output_layer, layer_loss)
+        self.weight_gradient_calc(inputs, self.layers[0], layers_loss[-1])
+        self.bias_gradient_calc(self.layers[0], layers_loss[-1])

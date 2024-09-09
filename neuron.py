@@ -16,6 +16,8 @@ class Neuron:
         self.weighted_sum = self.bias
         for input_neuron, weight in zip(inputs, self.in_weigths):
             self.weighted_sum += input_neuron * weight
+        return self.weighted_sum
 
     def activate(self):
         self.value = self.activation_function(self.weighted_sum)
+        return self.value
