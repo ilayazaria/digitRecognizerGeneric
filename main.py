@@ -1,7 +1,6 @@
 import os.path
 import pickle
 
-from PIL import Image
 from keras.datasets import mnist
 import datetime
 from sgd import StochasticGradientDescent
@@ -15,7 +14,7 @@ def main():
     else:
         print("Creating the neural network...")
         (train_X, train_y), (test_X, test_y) = mnist.load_data()
-        sgd = StochasticGradientDescent(train_X, train_y)
+        sgd = StochasticGradientDescent(784, train_X, train_y, 8)
     print(datetime.datetime.now())
     sgd.train()
     with open('nn-trained.pkl', 'wb') as f:

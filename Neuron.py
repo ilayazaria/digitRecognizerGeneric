@@ -9,8 +9,7 @@ class Neuron:
         self.bias = random.uniform(-0.5, 0.5)
         self.activation_function = activation_function
         self.in_weigths = [random.uniform(-0.1, 0.1) for _ in range(number_of_previous_neurons)]
-        self.current_bias_gradient = 0
-        self.current_weight_gradient = [0 for _ in range(number_of_previous_neurons)]
+        self.loss = 0
 
     def calculate_weighted_sum(self, inputs):
         self.weighted_sum = self.bias

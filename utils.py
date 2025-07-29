@@ -1,7 +1,7 @@
 import math
 from typing import List
 
-from neuron import Neuron
+from Neuron import Neuron
 
 
 def no_activation(z):
@@ -9,7 +9,7 @@ def no_activation(z):
 
 
 def ReLU(Z):
-    return max(0, Z)
+    return max(0.1 * Z, Z)
 
 
 def softmax(inputs):
@@ -35,4 +35,4 @@ def get_weight_from_neuron_list(neuron_list: List[Neuron]):
 
 
 def list_divide_by(num_lst, number):
-    return [value / number for value in num_lst]
+    return [float(value / number) for value in num_lst]
